@@ -1,0 +1,11 @@
+{
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ],
+    "env": {
+        "REACT_APP_API_URL": "https://notes-app-backend-ww4f.onrender.com"
+    }
+}
