@@ -22,10 +22,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('Attempting login to:', `${API_URL}/api/auth/login`);
       const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });
+      console.log('Login response:', response.data);
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -33,18 +35,20 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       return true;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error:', error.response?.data || error.message);
       return false;
     }
   };
 
   const register = async (name, email, password) => {
     try {
+      console.log('Attempting registration to:', `${API_URL}/api/auth/register`);
       const response = await axios.post(`${API_URL}/api/auth/register`, {
         name,
         email,
         password,
       });
+      console.log('Registration response:', response.data);
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -52,7 +56,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       return true;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration error:', error.response?.data || error.message);
       return false;
     }
   };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -23,7 +24,8 @@ const Login = () => {
         setError('Failed to log in. Please check your credentials.');
       }
     } catch (err) {
-      setError('Failed to log in. Please try again.');
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Failed to log in. Please try again.');
     }
     setLoading(false);
   };
