@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -12,6 +13,7 @@ const NoteList = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   useEffect(() => {
     fetchNotes();
@@ -19,11 +21,14 @@ const NoteList = () => {
 
   const fetchNotes = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/notes`);
+      const response = await axios.get(`${API_URL}/api/notes`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setNotes(response.data);
       setLoading(false);
     } catch (err) {
-      setError('Failed to fetch notes');
+      console.error('Error fetching notes:', err);
+      setError(err.response?.data?.message || 'Failed to fetch notes');
       setLoading(false);
     }
   };
@@ -31,10 +36,13 @@ const NoteList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this note?')) {
       try {
-        await axios.delete(`${API_URL}/api/notes/${id}`);
+        await axios.delete(`${API_URL}/api/notes/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setNotes(notes.filter(note => note._id !== id));
       } catch (err) {
-        setError('Failed to delete note');
+        console.error('Error deleting note:', err);
+        setError(err.response?.data?.message || 'Failed to delete note');
       }
     }
   };

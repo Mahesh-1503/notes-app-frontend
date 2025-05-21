@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -12,6 +13,7 @@ const NoteForm = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
+  const { token } = useAuth();
   const isEditing = Boolean(id);
 
   useEffect(() => {
@@ -22,12 +24,15 @@ const NoteForm = () => {
 
   const fetchNote = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/notes/${id}`);
+      const response = await axios.get(`${API_URL}/api/notes/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const { title, content } = response.data;
       setTitle(title);
       setContent(content);
     } catch (err) {
-      setError('Failed to fetch note');
+      console.error('Error fetching note:', err);
+      setError(err.response?.data?.message || 'Failed to fetch note');
     }
   };
 
@@ -37,21 +42,19 @@ const NoteForm = () => {
       setError('');
       setLoading(true);
 
+      const headers = { Authorization: `Bearer ${token}` };
+      const noteData = { title, content };
+
       if (isEditing) {
-        await axios.put(`${API_URL}/api/notes/${id}`, {
-          title,
-          content,
-        });
+        await axios.put(`${API_URL}/api/notes/${id}`, noteData, { headers });
       } else {
-        await axios.post(`${API_URL}/api/notes`, {
-          title,
-          content,
-        });
+        await axios.post(`${API_URL}/api/notes`, noteData, { headers });
       }
 
       navigate('/notes');
     } catch (err) {
-      setError('Failed to save note');
+      console.error('Error saving note:', err);
+      setError(err.response?.data?.message || 'Failed to save note');
     }
     setLoading(false);
   };
