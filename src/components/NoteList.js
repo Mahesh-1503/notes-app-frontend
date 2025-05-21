@@ -5,6 +5,8 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const NoteList = () => {
   const [notes, setNotes] = useState([]);
   const [error, setError] = useState('');
@@ -17,7 +19,7 @@ const NoteList = () => {
 
   const fetchNotes = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/notes');
+      const response = await axios.get(`${API_URL}/api/notes`);
       setNotes(response.data);
       setLoading(false);
     } catch (err) {
@@ -29,7 +31,7 @@ const NoteList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this note?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/notes/${id}`);
+        await axios.delete(`${API_URL}/api/notes/${id}`);
         setNotes(notes.filter(note => note._id !== id));
       } catch (err) {
         setError('Failed to delete note');

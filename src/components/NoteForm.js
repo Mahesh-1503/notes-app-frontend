@@ -3,6 +3,8 @@ import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const NoteForm = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -20,7 +22,7 @@ const NoteForm = () => {
 
   const fetchNote = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/notes/${id}`);
+      const response = await axios.get(`${API_URL}/api/notes/${id}`);
       const { title, content } = response.data;
       setTitle(title);
       setContent(content);
@@ -36,12 +38,12 @@ const NoteForm = () => {
       setLoading(true);
 
       if (isEditing) {
-        await axios.put(`http://localhost:5000/api/notes/${id}`, {
+        await axios.put(`${API_URL}/api/notes/${id}`, {
           title,
           content,
         });
       } else {
-        await axios.post('http://localhost:5000/api/notes', {
+        await axios.post(`${API_URL}/api/notes`, {
           title,
           content,
         });
