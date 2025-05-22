@@ -27,10 +27,11 @@ const Register = () => {
       if (success) {
         navigate('/notes');
       } else {
-        setError('Failed to create an account');
+        setError('Failed to create an account. Please try again.');
       }
     } catch (err) {
-      setError('Failed to create an account');
+      console.error('Registration error:', err);
+      setError(err.response?.data?.message || 'Failed to create an account. Please check your connection and try again.');
     }
     setLoading(false);
   };
