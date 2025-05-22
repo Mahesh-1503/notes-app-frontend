@@ -14,7 +14,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Ensure token is properly formatted
+      if (token.startsWith('Bearer ')) {
+        axios.defaults.headers.common['Authorization'] = token;
+      } else {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
       setIsAuthenticated(true);
     }
     setLoading(false);
@@ -29,8 +34,12 @@ export const AuthProvider = ({ children }) => {
       });
       console.log('Login response:', response.data);
       const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      // Store token without 'Bearer ' prefix
+      const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
+      localStorage.setItem('token', cleanToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${cleanToken}`;
+      
       setUser(user);
       setIsAuthenticated(true);
       return true;
@@ -50,8 +59,12 @@ export const AuthProvider = ({ children }) => {
       });
       console.log('Registration response:', response.data);
       const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      // Store token without 'Bearer ' prefix
+      const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
+      localStorage.setItem('token', cleanToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${cleanToken}`;
+      
       setUser(user);
       setIsAuthenticated(true);
       return true;
