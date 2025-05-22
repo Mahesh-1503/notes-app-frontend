@@ -4,6 +4,23 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const AuthContext = createContext(null);
 
+// Configure axios defaults
+axios.defaults.baseURL = API_URL;
+
+// Add request interceptor
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -15,14 +32,20 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     console.log('Initial token from localStorage:', token);
     if (token) {
-      // Ensure token is properly formatted
-      if (token.startsWith('Bearer ')) {
-        axios.defaults.headers.common['Authorization'] = token;
-      } else {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
-      console.log('Set axios header:', axios.defaults.headers.common['Authorization']);
       setIsAuthenticated(true);
+      // Fetch user data
+      axios.get('/api/auth/me')
+        .then(response => {
+          setUser(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+          // If token is invalid, clear it
+          if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            setIsAuthenticated(false);
+          }
+        });
     }
     setLoading(false);
   }, []);
@@ -30,20 +53,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       console.log('Attempting login to:', `${API_URL}/api/auth/login`);
-      const response = await axios.post(`${API_URL}/api/auth/login`, {
+      const response = await axios.post('/api/auth/login', {
         email,
         password,
       });
       console.log('Login response:', response.data);
       const { token, user } = response.data;
       
-      // Store token without 'Bearer ' prefix
-      const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
-      console.log('Storing token:', cleanToken);
-      localStorage.setItem('token', cleanToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${cleanToken}`;
-      console.log('Set axios header:', axios.defaults.headers.common['Authorization']);
-      
+      localStorage.setItem('token', token);
       setUser(user);
       setIsAuthenticated(true);
       return true;
@@ -56,7 +73,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       console.log('Attempting registration to:', `${API_URL}/api/auth/register`);
-      const response = await axios.post(`${API_URL}/api/auth/register`, {
+      const response = await axios.post('/api/auth/register', {
         name,
         email,
         password,
@@ -64,13 +81,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Registration response:', response.data);
       const { token, user } = response.data;
       
-      // Store token without 'Bearer ' prefix
-      const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
-      console.log('Storing token:', cleanToken);
-      localStorage.setItem('token', cleanToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${cleanToken}`;
-      console.log('Set axios header:', axios.defaults.headers.common['Authorization']);
-      
+      localStorage.setItem('token', token);
       setUser(user);
       setIsAuthenticated(true);
       return true;
@@ -82,7 +93,6 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
     setIsAuthenticated(false);
   };

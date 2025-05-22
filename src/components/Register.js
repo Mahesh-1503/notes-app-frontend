@@ -68,6 +68,7 @@ const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="new-password"
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -77,6 +78,7 @@ const Register = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                autoComplete="new-password"
               />
             </Form.Group>
             <Button
