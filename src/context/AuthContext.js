@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log('Initial token from localStorage:', token);
     if (token) {
       // Ensure token is properly formatted
       if (token.startsWith('Bearer ')) {
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       }
+      console.log('Set axios header:', axios.defaults.headers.common['Authorization']);
       setIsAuthenticated(true);
     }
     setLoading(false);
@@ -37,8 +39,10 @@ export const AuthProvider = ({ children }) => {
       
       // Store token without 'Bearer ' prefix
       const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
+      console.log('Storing token:', cleanToken);
       localStorage.setItem('token', cleanToken);
       axios.defaults.headers.common['Authorization'] = `Bearer ${cleanToken}`;
+      console.log('Set axios header:', axios.defaults.headers.common['Authorization']);
       
       setUser(user);
       setIsAuthenticated(true);
@@ -62,8 +66,10 @@ export const AuthProvider = ({ children }) => {
       
       // Store token without 'Bearer ' prefix
       const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
+      console.log('Storing token:', cleanToken);
       localStorage.setItem('token', cleanToken);
       axios.defaults.headers.common['Authorization'] = `Bearer ${cleanToken}`;
+      console.log('Set axios header:', axios.defaults.headers.common['Authorization']);
       
       setUser(user);
       setIsAuthenticated(true);
